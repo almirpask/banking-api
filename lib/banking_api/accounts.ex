@@ -35,8 +35,8 @@ defmodule BankingApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
-
+  def get_user!(id), do: from(e in User, preload: [:credential]) |> Repo.get(id)
+  
   @doc """
   Creates a user.
 
@@ -55,6 +55,15 @@ defmodule BankingApi.Accounts do
     |> Repo.insert()
   end
 
+  def change_registration(%User{} = user, params) do
+    User.registration_changeset(user, params)
+  end
+
+  def register_user(attrs \\ %{}) do
+    %User{}
+    |> User.registration_changeset(attrs)
+    |> Repo.insert()
+  end
   @doc """
   Updates a user.
 
