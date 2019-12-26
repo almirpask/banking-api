@@ -1,4 +1,4 @@
-defmodule BankingApiWeb.SessionController do
+defmodule BankingApiWeb.V1.SessionController do
   use BankingApiWeb, :controller
 
   alias BankingApi.{Accounts, Accounts.User, Accounts.Guardian}
