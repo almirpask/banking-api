@@ -231,7 +231,7 @@ defmodule BankingApi.Accounts do
   def user_serializer(user) do 
     %{
       id: user.id,
-      email: user.email
+      email: user.credential.email
     }
   end
 end
