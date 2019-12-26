@@ -3,7 +3,7 @@ defmodule BankingApi.Bank.Balance do
   import Ecto.Changeset
 
   schema "balances" do
-    field :amount, :decimal
+    field :amount, Money.Ecto.Amount.Type
     field :user_id, :id
 
     timestamps()
@@ -12,7 +12,7 @@ defmodule BankingApi.Bank.Balance do
   @doc false
   def changeset(balance, attrs) do
     balance
-    |> cast(attrs, [:amount])
-    |> validate_required([:amount])
+    |> cast(attrs, [:amount, :user_id])
+    |> validate_required([:user_id])
   end
 end

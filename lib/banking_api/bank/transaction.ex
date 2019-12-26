@@ -3,7 +3,7 @@ defmodule BankingApi.Bank.Transaction do
   import Ecto.Changeset
 
   schema "transactions" do
-    field :amount, :decimal
+    field :amount, Money.Ecto.Amount.Type
     field :user_id, :id
 
     timestamps()
@@ -12,7 +12,7 @@ defmodule BankingApi.Bank.Transaction do
   @doc false
   def changeset(transaction, attrs) do
     transaction
-    |> cast(attrs, [:amount])
-    |> validate_required([:amount])
+    |> cast(attrs, [:user_id, :amount])
+    |> validate_required([:user_id, :amount])
   end
 end

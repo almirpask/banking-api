@@ -81,10 +81,13 @@ defmodule BankingApi.Accounts do
   end
 
   def register_user(attrs \\ %{}) do
-    %User{}
-    |> User.registration_changeset(attrs)
-    |> Repo.insert()
+    with {:ok, user} <- %User{} |> User.registration_changeset(attrs)
+      |> Repo.insert(), BankingApi.Bank.create_balance_and_first_deposit(user) do
+        {:ok, user}
+      end
   end
+
+  # %{user_id: 66} |> BankingApi.Bank.create_balance()
   @doc """
   Updates a user.
 

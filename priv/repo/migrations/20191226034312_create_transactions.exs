@@ -3,7 +3,7 @@ defmodule BankingApi.Repo.Migrations.CreateTransactions do
 
   def change do
     create table(:transactions) do
-      add :amount, :decimal
+      add :amount, :integer
       add :user_id, references(:users, on_delete: :nothing)
 
       timestamps()

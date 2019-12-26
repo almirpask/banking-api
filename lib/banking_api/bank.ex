@@ -4,9 +4,12 @@ defmodule BankingApi.Bank do
   """
 
   import Ecto.Query, warn: false
-  alias BankingApi.Repo
 
-  alias BankingApi.Bank.Balance
+  alias BankingApi.Repo
+  alias BankingApi.Accounts.User
+  alias BankingApi.Bank.{Balance, Transaction}
+
+  @initial_deposit_value Money.new(100_000)
 
   @doc """
   Returns the list of balances.
@@ -35,24 +38,26 @@ defmodule BankingApi.Bank do
       ** (Ecto.NoResultsError)
 
   """
-  def get_balance!(id), do: Repo.get!(Balance, id)
+  def get_balance!(id), do: Repo.get_by(Balance, user_id: id)
 
   @doc """
   Creates a balance.
 
   ## Examples
 
-      iex> create_balance(%{field: value})
+      iex> create_balance_and_first_deposit(%{field: value})
       {:ok, %Balance{}}
 
-      iex> create_balance(%{field: bad_value})
+      iex> create_balance_and_first_deposit(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_balance(attrs \\ %{}) do
-    %Balance{}
-    |> Balance.changeset(attrs)
-    |> Repo.insert()
+  def create_balance_and_first_deposit(user \\ %{}) do    
+    with %Balance{}
+      |> Balance.changeset(%{user_id: user.id, amount: Money.new(0)})
+      |> Repo.insert() do 
+      deposit(user, @initial_deposit_value)
+    end
   end
 
   @doc """
@@ -67,10 +72,21 @@ defmodule BankingApi.Bank do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_balance(%Balance{} = balance, attrs) do
-    balance
-    |> Balance.changeset(attrs)
-    |> Repo.update()
+  defp check_positive(%Balance{} = balance, amount) do
+    balance.amount || 0
+    |> Money.add(amount)
+    |> Money.positive?()
+  end
+
+  defp update_balance(%Balance{} = balance, amount) do
+    if check_positive(balance, amount) do
+      new_amount = balance.amount || 0 |> Money.add(amount)
+      balance
+      |> Balance.changeset(%{amount: new_amount})
+      |> Repo.update()
+    else
+      {:error, "The new balance must be positive", 422}
+    end
   end
 
   @doc """
@@ -196,5 +212,23 @@ defmodule BankingApi.Bank do
   """
   def change_transaction(%Transaction{} = transaction) do
     Transaction.changeset(transaction, %{})
+  end
+  
+  @doc """
+    make a deposit to a specific account
+  ## Examples
+      iex> account |> deposit(Money.new(1000))
+      {:ok, %Account{}, %Transaction{}}
+  """
+  def deposit(%User{id: user_id} = user, %Money{} = amount) do    
+    with {:ok, transaction } <- create_transaction(%{user_id: user_id, amount: amount}),
+      %Balance{} = balance <- user_id |> get_balance!(),
+      {:ok, _} = balance |> update_balance(transaction.amount)
+      do
+        user = user
+          |> Repo.preload(:balance)
+          |> Repo.preload(:user)
+      {:ok, user, transaction}
+    end
   end
 end
