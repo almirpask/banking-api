@@ -25,6 +25,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :banking_api, BankingApi.Accounts.Guardian,
+       issuer: "banking_api",
+       secret_key: "uUh8GmIu59rvuJZRqaNIz1lYUPkLrmOkX7d/mlG/lT/LZnK0NLi6VGgijTW6xj2C"
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

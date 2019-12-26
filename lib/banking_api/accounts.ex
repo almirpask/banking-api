@@ -7,6 +7,27 @@ defmodule BankingApi.Accounts do
   alias BankingApi.Repo
 
   alias BankingApi.Accounts.User
+  alias BankingApi.Accounts.Credential
+
+
+
+  def get_user_by_email(email) do
+    from(c in Credential, where: c.email == ^email)
+    |> Repo.one()    
+  end
+
+  def authenticate_by_email_and_pass(email, given_pass) do
+    user = get_user_by_email(email)
+    cond do 
+      user && Pbkdf2.verify_pass(given_pass, user.password_hash) ->
+        {:ok, user}
+      user ->
+        {:error, :unauthorized}
+      true ->
+        Pbkdf2.no_user_verify()
+        {:error, :not_found}
+    end
+  end
 
   @doc """
   Returns the list of users.
@@ -205,5 +226,12 @@ defmodule BankingApi.Accounts do
   """
   def change_credential(%Credential{} = credential) do
     Credential.changeset(credential, %{})
+  end
+
+  def user_serializer(user) do 
+    %{
+      id: user.id,
+      email: user.email
+    }
   end
 end
