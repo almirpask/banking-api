@@ -5,6 +5,7 @@ defmodule BankingApi.Accounts.User do
   schema "users" do
     field :name, :string
     has_one :credential, Credential
+    has_one :balance, BankingApi.Bank.Balance
     timestamps()
   end
 

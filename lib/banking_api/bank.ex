@@ -73,14 +73,14 @@ defmodule BankingApi.Bank do
 
   """
   defp check_positive(%Balance{} = balance, amount) do
-    balance.amount || 0
+    balance.amount
     |> Money.add(amount)
     |> Money.positive?()
   end
 
   defp update_balance(%Balance{} = balance, amount) do
     if check_positive(balance, amount) do
-      new_amount = balance.amount || 0 |> Money.add(amount)
+      new_amount = balance.amount |> Money.add(amount)
       balance
       |> Balance.changeset(%{amount: new_amount})
       |> Repo.update()
@@ -227,8 +227,8 @@ defmodule BankingApi.Bank do
       do
         user = user
           |> Repo.preload(:balance)
-          |> Repo.preload(:user)
-      {:ok, user, transaction}
+          |> Repo.preload(:credential)
+        {:ok, user, transaction}
     end
   end
 end
