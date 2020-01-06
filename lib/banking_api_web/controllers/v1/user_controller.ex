@@ -7,11 +7,17 @@ defmodule BankingApiWeb.V1.UserController do
 
   def index(conn, _params) do
     users = Accounts.list_users()
-    json(conn, Enum.map(users, fn user -> user_serializer(users) end) )
+    json(conn, Enum.map(users, fn user -> Accounts.user_serializer(users) end))
   end
+
   def show(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
-    json(conn, user_serializer(user))
+    with {:ok, user } <- id |>  Accounts.get_user!() do
+      json(conn, Accounts.user_serializer(user))
+    else
+      _ -> 
+        json(conn, %{error: 'User not found'})
+    end
+    
   end
 
   def create(conn, %{"user" => user_params}) do
@@ -22,22 +28,5 @@ defmodule BankingApiWeb.V1.UserController do
       {:error, %Ecto.Changeset{} = changeset} ->
         json(conn, %{error: "Invalid data"})
     end
-  end
-
-  defp authenticate(conn, _opts) do
-    if conn.assigns.current_user do
-      conn
-    else
-      conn
-      |> json(%{error: "You must be logged in to access that page"})
-      |> halt()
-    end
-  end
-  defp user_serializer(user) do 
-    %{
-      id: user.id,
-      name: user.name,
-      email: user.credential.email
-    }
   end
 end

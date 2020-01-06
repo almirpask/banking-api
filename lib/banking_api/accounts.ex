@@ -13,7 +13,7 @@ defmodule BankingApi.Accounts do
 
   def get_user_by_email(email) do
     from(c in Credential, where: c.email == ^email)
-    |> Repo.one()    
+    |> Repo.one()
   end
 
   def authenticate_by_email_and_pass(email, given_pass) do
@@ -56,7 +56,7 @@ defmodule BankingApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: from(e in User, preload: [:credential]) |> Repo.get(id)
+  def get_user!(id), do: from(e in User, preload: [:credential]) |> Repo.get(id) |> guard()
   
   @doc """
   Creates a user.
@@ -231,10 +231,13 @@ defmodule BankingApi.Accounts do
     Credential.changeset(credential, %{})
   end
 
-  def user_serializer(user) do 
+  def user_serializer(user) do
     %{
       id: user.id,
       email: user.credential.email
     }
   end
+
+  defp guard(%User{} = user), do: {:ok, user}
+  defp guard(_), do: {:error, "User not found", 404}
 end
