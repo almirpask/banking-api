@@ -137,12 +137,12 @@ defmodule BankingApi.Bank do
       amount
       |> Money.abs()
       |> Money.neg()
-    from_user_amount = 
+    to_user_amount = 
       amount
       |> Money.abs()
     Repo.transaction(fn ->    
       with {:ok, from_transaction} <- create_transaction(%{user_id: from_user, amount: from_user_amount}),
-          {:ok, to_transaction} <- create_transaction(%{user_id: to_user, amount: from_user_amount}),
+          {:ok, to_transaction} <- create_transaction(%{user_id: to_user, amount: to_user_amount}),
           %Balance{} = from_balance <- from_user |> get_balance!(),
           %Balance{} = to_balance <- to_user |> get_balance!(),
           {:ok, _} <- from_balance |> update_balance(from_transaction.amount),
