@@ -8,7 +8,6 @@ defmodule BankingApi.Bank do
   alias BankingApi.Repo
   alias BankingApi.Accounts.User
   alias BankingApi.Bank.{Balance, Transaction}
-
   @initial_deposit_value Money.new(100_000)
 
   @doc """
@@ -133,6 +132,42 @@ defmodule BankingApi.Bank do
     Repo.all(Transaction)
   end
 
+  def transfer(%User{id: from_user}, %User{id: to_user}, %Money{} = amount) do
+    from_user_amount = 
+      amount
+      |> Money.abs()
+      |> Money.neg()
+    from_user_amount = 
+      amount
+      |> Money.abs()
+    Repo.transaction(fn ->    
+      with {:ok, from_transaction} <- create_transaction(%{user_id: from_user, amount: from_user_amount}),
+          {:ok, to_transaction} <- create_transaction(%{user_id: to_user, amount: from_user_amount}),
+          %Balance{} = from_balance <- from_user |> get_balance!(),
+          %Balance{} = to_balance <- to_user |> get_balance!(),
+          {:ok, _} <- from_balance |> update_balance(from_transaction.amount),
+          {:ok, _} <- to_balance |> update_balance(to_transaction.amount) do
+        %{
+          from_transaction: %{
+            transaction_id: from_transaction.id,
+            user_id: from_user,
+            amount: from_transaction.amount,
+            date: from_transaction.inserted_at
+          },
+          to_transaction: %{
+            transaction_id: to_transaction.id,
+            user_id: to_user,
+            amount: to_transaction.amount,
+            date: to_transaction.inserted_at
+          }
+        }
+      else
+        _ -> Repo.rollback(:transfer_problems)
+      end
+    end)
+  end
+
+  def transfer(_, _, _), do: {:error, "Invalid accounts"}
   @doc """
   Gets a single transaction.
 

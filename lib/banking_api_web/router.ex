@@ -6,7 +6,7 @@ defmodule BankingApiWeb.Router do
   end
     
   pipeline :ensure_auth do
-    plug Guardian.Plug.EnsureAuthenticated
+    plug Guardian.Plug.EnsureAuthenticated    
   end
   
   pipeline :api do
@@ -22,7 +22,9 @@ defmodule BankingApiWeb.Router do
   end
   scope "/api", BankingApiWeb do
     pipe_through [:api, :auth, :ensure_auth]
-    resources "/users", UserController, only: [:show, :index]    
-    resources "/users", UserController, only: [:show, :index]    
+    scope "/v1", V1, as: :v1 do
+      resources "/users", UserController, only: [:show, :index]
+      resources "/transfers", TransferController, only: [:create]
+    end  
   end
 end
