@@ -25,6 +25,7 @@ defmodule BankingApiWeb.Router do
     scope "/v1", V1, as: :v1 do
       resources "/users", UserController, only: [:show, :index]
       resources "/transfers", TransferController, only: [:create]
+      resources "/withdraw", WithdrawController, only: [:create]
     end  
   end
 end
