@@ -4,8 +4,7 @@ defmodule BankingApiWeb.V1.WithdrawController do
   alias BankingApi.Bank
 
   def create(conn, %{"amount" => amount}) do
-    {:ok , current_user} = conn.assigns.current_user
-    
+    {:ok , current_user} = conn.assigns.current_user    
     with {:ok, user, transaction} <- current_user |> Bank.withdraw(Money.new(amount)) do
       json(conn, %{success: "sucess"})
     end 

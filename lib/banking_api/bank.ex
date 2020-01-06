@@ -269,9 +269,9 @@ defmodule BankingApi.Bank do
 
   def withdraw(%User{id: user_id} = user, %Money{} = amount) do
     new_amount = amount |> Money.abs() |> Money.neg()
-    with {:ok, transaction} <- create_transaction(%{user_id: user_id, amount: amount}),
+    with {:ok, transaction} <- create_transaction(%{user_id: user_id, amount: new_amount}),
         %Balance{} = balance <- get_balance!(user_id),
-        {:ok, _} <- balance |> update_balance(amount) do
+        {:ok, _} <- balance |> update_balance(new_amount) do
         Task.async(fn -> BankingApi.Mailer.withdraw(user, transaction) end)
         {:ok, user, transaction}
     end
