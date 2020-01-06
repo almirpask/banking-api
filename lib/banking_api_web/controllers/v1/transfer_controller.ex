@@ -9,7 +9,7 @@ defmodule BankingApiWeb.V1.TransferController do
          {:ok, %{from_transaction: from_transaction, to_transaction: to_transaction}} <-
           current_user |> Bank.transfer(receiving_user, Money.new(amount)) do
       conn
-      |> json(%{from_transaction: from_transaction, to_transaction: to_transaction})
+      |> render("transfer.json", type: "transfer", from_transaction: from_transaction, to_transaction: to_transaction)
     else
       _ ->
         json(conn, %{error: "transaction fail"})
