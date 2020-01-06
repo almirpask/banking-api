@@ -43,6 +43,7 @@ defmodule BankingApi.MixProject do
       {:pbkdf2_elixir, "~> 1.0"},
       {:guardian, "~> 2.0"},
       {:money, "~> 1.4"},
+      {:timex, "~> 3.5"},
       {:plug_cowboy, "~> 2.0"},
     ]
   end

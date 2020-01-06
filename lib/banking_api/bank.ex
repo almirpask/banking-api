@@ -7,7 +7,7 @@ defmodule BankingApi.Bank do
 
   alias BankingApi.Repo
   alias BankingApi.Accounts.User
-  alias BankingApi.Bank.{Balance, Transaction}
+  alias BankingApi.Bank.{Balance, Transaction, Query}
   @initial_deposit_value Money.new(100_000)
 
   @doc """
@@ -275,5 +275,46 @@ defmodule BankingApi.Bank do
         Task.async(fn -> BankingApi.Mailer.withdraw(user, transaction) end)
         {:ok, user, transaction}
     end
+  end
+
+  defp process_transaction(transactions) do
+    transactions
+    |> Enum.map(fn transaction ->
+      %{
+        transaction_id: transaction.id,
+        user_id: transaction.user_id,
+        amount: transaction.amount,
+        date: transaction.inserted_at
+      }
+    end)
+  end
+  
+  defp group_by_month(transactions) do
+    transactions
+    |> Enum.group_by(&(&1.date |> Timex.format!("{0M}")))
+  end
+  defp group_by_day(transactions) do
+    transactions
+    |> Enum.group_by(&(&1.date |> Timex.format!("{0D}")))
+  end
+  
+  def report do
+    %{
+      today: Query.get_all_transactions_today() |> Repo.all() |> process_transaction(),
+      month:
+        Query.get_all_transactions_month()
+        |> Repo.all()
+        |> process_transaction()
+        |> group_by_day(),
+      year:
+        Query.get_all_transactions_year()
+        |> Repo.all()
+        |> process_transaction()
+        |> group_by_month()
+        |> Enum.reduce(%{}, fn {k, v}, acc ->
+          acc
+          |> Map.merge(%{k => v |> group_by_day()})
+        end)
+    }    
   end
 end

@@ -26,6 +26,7 @@ defmodule BankingApiWeb.Router do
       resources "/users", UserController, only: [:show, :index]
       resources "/transfers", TransferController, only: [:create]
       resources "/withdraw", WithdrawController, only: [:create]
-    end  
+      resources "/reports", ReportController, only: [:index]
+    end
   end
 end
