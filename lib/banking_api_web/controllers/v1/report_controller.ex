@@ -1,6 +1,5 @@
 defmodule BankingApiWeb.V1.ReportController do
   use BankingApiWeb, :controller
-  alias BankingApi.Accounts
   alias BankingApi.Bank
 
   def index(conn, _params) do

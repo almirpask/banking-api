@@ -3,8 +3,6 @@ defmodule BankingApi.Bank.Query do
   Custom queries for Bank context 
   """
   import Ecto.Query
-
-  alias BankingApi.Accounts.User
   alias BankingApi.Bank.Transaction
 
   @now Timex.now()

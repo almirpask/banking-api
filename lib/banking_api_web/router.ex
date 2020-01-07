@@ -23,7 +23,7 @@ defmodule BankingApiWeb.Router do
   scope "/api", BankingApiWeb do
     pipe_through [:api, :auth, :ensure_auth]
     scope "/v1", V1, as: :v1 do
-      resources "/users", UserController, only: [:show, :index]
+      resources "/users", UserController, only: [:show]
       resources "/transfers", TransferController, only: [:create]
       resources "/withdraw", WithdrawController, only: [:create]
       resources "/reports", ReportController, only: [:index]

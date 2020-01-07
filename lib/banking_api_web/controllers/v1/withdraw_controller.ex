@@ -1,6 +1,5 @@
 defmodule BankingApiWeb.V1.WithdrawController do
   use BankingApiWeb, :controller
-  alias BankingApi.Accounts
   alias BankingApi.Bank
 
   def create(conn, %{"amount" => amount}) do
