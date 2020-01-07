@@ -8,8 +8,6 @@ Dependencies
  * docker-compose
 
 ## Setup
-
-### Generate docker files and required enviroment variables for both dev and production environments
 ```bash
 $ docker-compose build
 ```
@@ -18,7 +16,7 @@ $ docker-compose build
 
 * Before run test run `docker-compose run web bash` to access the `bash` inside the `web` container.
 
-Once inside  the container run the maybe you need to install all the dependencies by runing `mix deps.get`
+Once inside  the container run maybe you will need to install all the dependencies by runing `mix deps.get`
 
 Inside on container run the following command
 `MIX_ENV=test mix test`
