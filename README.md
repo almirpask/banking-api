@@ -1,4 +1,4 @@
-# Banking
+# BankingApi
 
 ## Environment
 
