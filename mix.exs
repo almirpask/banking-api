@@ -44,6 +44,8 @@ defmodule BankingApi.MixProject do
       {:guardian, "~> 2.0"},
       {:money, "~> 1.4"},
       {:timex, "~> 3.5"},
+      {:faker, "~> 0.12", only: [:test, :dev]},
+      {:ex_machina, "~> 2.3"},
       {:plug_cowboy, "~> 2.0"},
     ]
   end

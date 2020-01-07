@@ -9,11 +9,6 @@ defmodule BankingApi.Bank.Query do
 
   @now Timex.now()
 
-  def list_accounts_preloaded do
-    from users in User,
-      preload: [:credential, :balance]
-  end
-
   def get_all_transactions_today do
     today = @now |> Timex.to_date()
 
