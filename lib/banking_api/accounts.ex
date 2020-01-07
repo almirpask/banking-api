@@ -16,6 +16,14 @@ defmodule BankingApi.Accounts do
     |> Repo.one()
   end
 
+  @doc """
+  Authenticate a user using email and password
+
+  ## Examples
+      iex> authenticate_by_email_and_pass(email, password)
+      {:ok, %User{}}    
+  """
+
   def authenticate_by_email_and_pass(email, given_pass) do
     user = get_user_by_email(email)
     cond do 
@@ -80,6 +88,12 @@ defmodule BankingApi.Accounts do
     User.registration_changeset(user, params)
   end
 
+  @doc """
+  Register a new user
+  ## Examples
+      iex> %{} |> register_user()
+      {:ok, %User{}}
+  """
   def register_user(attrs \\ %{}) do
     with {:ok, user} <- %User{} |> User.registration_changeset(attrs)
       |> Repo.insert(), BankingApi.Bank.create_balance_and_first_deposit(user) do

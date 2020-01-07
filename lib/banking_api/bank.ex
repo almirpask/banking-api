@@ -59,24 +59,13 @@ defmodule BankingApi.Bank do
     end
   end
 
-  @doc """
-  Updates a balance.
-
-  ## Examples
-
-      iex> update_balance(balance, %{field: new_value})
-      {:ok, %Balance{}}
-
-      iex> update_balance(balance, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
+ 
   defp check_positive(%Balance{} = balance, amount) do
     balance.amount
     |> Money.add(amount)
     |> Money.positive?()
   end
-
+  
   defp update_balance(%Balance{} = balance, amount) do
     if check_positive(balance, amount) do
       new_amount = balance.amount |> Money.add(amount)
@@ -132,6 +121,12 @@ defmodule BankingApi.Bank do
     Repo.all(Transaction)
   end
 
+  @doc """
+  Transfer money from a user to another
+    ## Examples
+      iex> %User{} |> transfer(%User{}, %Money{})
+      %{from_transaction: Map.t(), to_transaction: Map.t()}
+  """
   def transfer(%User{id: from_user}, %User{id: to_user}, %Money{} = amount) do
     from_user_amount = 
       amount
@@ -168,6 +163,7 @@ defmodule BankingApi.Bank do
   end
 
   def transfer(_, _, _), do: {:error, "Invalid accounts"}
+
   @doc """
   Gets a single transaction.
 
@@ -250,10 +246,10 @@ defmodule BankingApi.Bank do
   end
   
   @doc """
-    make a deposit to a specific account
+    Make a deposit to a user
   ## Examples
-      iex> account |> deposit(Money.new(1000))
-      {:ok, %Account{}, %Transaction{}}
+      iex> user |> deposit(Money.new(1000))
+      {:ok, %User{}, %Transaction{}}
   """
   def deposit(%User{id: user_id} = user, %Money{} = amount) do    
     with {:ok, transaction } <- create_transaction(%{user_id: user_id, amount: amount}),
@@ -267,6 +263,12 @@ defmodule BankingApi.Bank do
     end
   end
 
+  @doc """
+    Make a withdraw of a user balance
+  ## Examples
+      iex> user |> withdrawal(Money.new(1000))
+      {:ok, %User{}, %Transaction{}}
+  """
   def withdraw(%User{id: user_id} = user, %Money{} = amount) do
     new_amount = amount |> Money.abs() |> Money.neg()
     with {:ok, transaction} <- create_transaction(%{user_id: user_id, amount: new_amount}),
@@ -277,27 +279,13 @@ defmodule BankingApi.Bank do
     end
   end
 
-  defp process_transaction(transactions) do
-    transactions
-    |> Enum.map(fn transaction ->
-      %{
-        transaction_id: transaction.id,
-        user_id: transaction.user_id,
-        amount: transaction.amount,
-        date: transaction.inserted_at
-      }
-    end)
-  end
   
-  defp group_by_month(transactions) do
-    transactions
-    |> Enum.group_by(&(&1.date |> Timex.format!("{0M}")))
-  end
-  defp group_by_day(transactions) do
-    transactions
-    |> Enum.group_by(&(&1.date |> Timex.format!("{0D}")))
-  end
-  
+  @doc """
+  Show all the transactions in diferent ranges 
+    ## Examples
+      iex> report()
+      %{month: List.t(), today: List.t(), year: List.t()}
+  """
   def report do
     %{
       today: Query.get_all_transactions_today() |> Repo.all() |> process_transaction(),
@@ -316,5 +304,27 @@ defmodule BankingApi.Bank do
           |> Map.merge(%{k => v |> group_by_day()})
         end)
     }    
+  end
+
+  defp process_transaction(transactions) do
+    transactions
+    |> Enum.map(fn transaction ->
+      %{
+        transaction_id: transaction.id,
+        user_id: transaction.user_id,
+        amount: transaction.amount,
+        date: transaction.inserted_at
+      }
+    end)
+  end
+  
+  defp group_by_month(transactions) do
+    transactions
+    |> Enum.group_by(&(&1.date |> Timex.format!("{0M}")))
+  end
+
+  defp group_by_day(transactions) do
+    transactions
+    |> Enum.group_by(&(&1.date |> Timex.format!("{0D}")))
   end
 end
