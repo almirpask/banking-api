@@ -8,7 +8,7 @@ defmodule BankingApi.Bank do
   alias BankingApi.Repo
   alias BankingApi.Accounts.User
   alias BankingApi.Bank.{Balance, Transaction, Query}
-  @initial_deposit_value Money.new(1_000)
+  @initial_deposit_value Money.new(100_000)
 
   @doc """
   Returns the list of balances.
